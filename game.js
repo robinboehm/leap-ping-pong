@@ -1,0 +1,99 @@
+var playerOne = {
+      x: 0
+    },
+    playerTwo = {
+      x: 0
+    };
+Leap.loop(function (frame) {
+
+  if (frame.hands[0]) {
+    playerOne.x = frame.hands[0].palmPosition[0] + 200;
+  }
+  else {
+    playerOne.x = undefined;
+  }
+
+});
+
+var controller = new Leap.Controller({
+  host: '10.0.10.232',
+  port: 6437,
+  enableGestures: true,
+  frameEventName: 'animationFrame'
+});
+
+controller.loop(function (frame) {
+  if (frame.hands[0]) {
+    playerTwo.x = frame.hands[0].palmPosition[0] + 200;
+  }
+  else {
+    playerTwo.x = undefined;
+  }
+});
+
+var Game = function () {
+  var opts = {
+    width: 400,
+    height: 500
+  };
+  Crafty.init(400, 500, document.getElementById('game'));
+  Crafty.background('black');
+
+  Crafty.e('Paddle, 2D, Canvas, Color, Twoway')
+      .attr({x: 10, y: 10, w: 55, h: 15})
+      .color('red')
+      .multiway(4, {A: 180, D: 0})
+      .bind('EnterFrame', function () {
+        if (playerTwo.x) {
+          this.x = playerTwo.x;
+        }
+        if (this.x < 0) {
+          this.x = 0;
+        }
+        if (this.x > 345) {
+          this.x = 345;
+        }
+
+      });
+
+  Crafty.e('Paddle, 2D, Canvas, Color, Twoway')
+      .attr({x: 10, y: 475, w: 55, h: 15})
+      .color('green')
+      .multiway(4, {LEFT_ARROW: 180, RIGHT_ARROW: 0})
+      .bind('EnterFrame', function () {
+        if (this.x < 0) {
+          this.x = 0;
+        }
+        if (this.x > opts.width - this.w) {
+          this.x = opts.width - this.w;
+        }
+        if (playerOne.x) {
+          this.x = playerOne.x;
+        }
+      });
+
+  var ball = Crafty.e('Ball, 2D, Canvas, Color, Collision')
+      .attr({x: opts.width / 2, y: opts.height / 2, w: 10, h: 10,
+        dX: -2, dY: 2})
+      .color('white')
+      .bind('EnterFrame', function () {
+        this.x += this.dX;
+        this.y += this.dY;
+        if (this.x < 10) {
+          this.dX *= -1;
+        }
+        if (this.x > 390) {
+          this.dX *= -1;
+        }
+        if (this.y < 0 || this.y > 500) {
+          this.y = 250;
+        }
+      })
+      .onHit('Paddle', function () {
+        this.dY *= -1;
+      });
+}
+
+jQuery(function () {
+  var game = new Game();
+});
