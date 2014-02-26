@@ -7,28 +7,12 @@ var playerOne = {
 Leap.loop(function (frame) {
 
   if (frame.hands[0]) {
-    playerOne.x = frame.hands[0].palmPosition[0] + 200;
+    playerOne.x = frame.hands[0].palmPosition[0] + 250;
   }
   else {
     playerOne.x = undefined;
   }
 
-});
-
-var controller = new Leap.Controller({
-  host: '10.0.10.232',
-  port: 6437,
-  enableGestures: true,
-  frameEventName: 'animationFrame'
-});
-
-controller.loop(function (frame) {
-  if (frame.hands[0]) {
-    playerTwo.x = frame.hands[0].palmPosition[0] + 200;
-  }
-  else {
-    playerTwo.x = undefined;
-  }
 });
 
 var Game = function () {
@@ -96,4 +80,30 @@ var Game = function () {
 
 jQuery(function () {
   var game = new Game();
+
+
+
 });
+
+
+function connect(){
+  var controller = new Leap.Controller({
+    host: document.getElementById('red_ip').value,
+    port: parseInt(document.getElementById('red_port').value,10),
+    enableGestures: true,
+    frameEventName: 'animationFrame'
+  });
+
+  controller.loop(function (frame) {
+    if (frame.hands[0]) {
+      playerTwo.x = frame.hands[0].palmPosition[0] + 250;
+    }
+    else {
+      playerTwo.x = undefined;
+    }
+  });
+
+  controller.on('deviceConnected', function(event){
+    console.log(event);
+  });
+}
